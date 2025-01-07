@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,  
+    "skipLibCheck": true,  
+    "forceConsistentCasingInFileNames": true,
+    "target": "es6",  
+    "module": "commonjs",
+    "allowJs": true,
+    "outDir": "build",
+    "rootDir": "src",
+    "strict": true,
+    "noImplicitAny": true,
+    "resolveJsonModule": true,
+    "lib": ["es6"],
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
+  },
+  "include": ["src/**/*"]
+}
