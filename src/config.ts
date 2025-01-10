@@ -3,7 +3,7 @@ dotenv.config()
 
 const config = {
   dev: true,
-  port: 3000,
+  port: process.env.APP_PORT,
   httpsPort: null,
   https: false,
   db: {

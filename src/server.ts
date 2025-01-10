@@ -3,7 +3,7 @@ import http from 'http'
 import https from 'https'
 import fs from 'fs'
 import backendRoutes from './routes/backend_routes'
-import frontRoutes from './routes/frontend_routes'
+import { frontendRoutes } from './routes/frontend_routes'
 import { dataSource } from './db/dataSource'
 import config from './config'
 import { Logger } from './utils/logger'
@@ -17,7 +17,7 @@ export class ServerApp {
     this.app.use(express.urlencoded({ extended: true }))
     this.app.use(express.json())
     this.app.use(this.prefix, backendRoutes)
-    frontRoutes.forEach(route => this.app.use(route, express.static('./static')))
+    frontendRoutes.forEach(route => this.app.use(route, express.static('./static')))
   }
 
   startHttps() {
