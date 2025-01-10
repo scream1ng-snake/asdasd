@@ -1,5 +1,8 @@
 # Проект
 Это монорепо `экспресс` сервер + `тг` бот + `svelte` фронт
+
+`nodejs` `esbuild` `typescript` `typeorm` `postgresql` `telegram bot api`
+`svelte` `vite`
 ## Скрипты
 Установка зависимойстей
 ```bash
@@ -25,6 +28,7 @@ npm run start:dev:client
 ## Environment
 можно использовать `.env` файл в корне проекта или запускать команду `node build.js` с аргументами
 ```bash
+APP_PORT=80
 DB_TYPE=postgres
 DB_HOST=example
 DB_PORT=5432
