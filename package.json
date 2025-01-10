@@ -6,7 +6,8 @@
   "scripts": {
     "postinstall": "cd ./src/client && npm install",
     "start": "npm run build && node build/index.js",
-    "start:dev": "nodemon src/index.ts",
+    "start:dev:server": "nodemon src/index.ts",
+    "start:dev:client": "cd ./src/client && npm run dev",
     "build:server": "node build.js",
     "build:client": "cd ./src/client && npm run build",
     "build": "npm run build:server && npm run build:client"
