@@ -4,9 +4,12 @@
   "main": "index.ts",
   "type": "commonjs",
   "scripts": {
+    "postinstall": "cd ./src/client && npm install",
     "start": "npm run build && node build/index.js",
     "start:dev": "nodemon src/index.ts",
-    "build": "node build.js"
+    "build:server": "node build.js",
+    "build:client": "cd ./src/client && npm run build",
+    "build": "npm run build:server && npm run build:client"
   },
   "author": "",
   "license": "ISC",

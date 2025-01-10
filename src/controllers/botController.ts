@@ -2,6 +2,7 @@ import TelegramBot, { Message } from "node-telegram-bot-api"
 import usersService from "../services/usersService"
 import { Logger } from "../utils/logger"
 import { userStages } from "../entities/userEntity"
+import { keyboards } from "../utils/telegramKeyboards"
 
 class botController {
   logger = new Logger('tg bot controller')
@@ -20,9 +21,7 @@ class botController {
       }
 
       const keyboard = {
-        reply_markup: {
-          keyboard: [[{ text: 'записаться' }, { text: 'каталог' }], [{ text: 'мои чеки' }], [{ text: 'связь' }]]
-        }
+        reply_markup: keyboards.home
       }
       if(userExists) {
         const updated = await usersService.updateByTgID(telegram_id, data)
@@ -30,6 +29,22 @@ class botController {
       } else {
         const created = await usersService.create(data)
         bot.sendMessage(message.chat.id, 'Добро пожаловать, ' + created.firstName, keyboard)
+      }
+    }
+  }
+
+  async watchMe(message: Message, bot: TelegramBot) {
+    if(message.from?.id) {
+      const telegram_id = String(message.from.id)
+      const user = await usersService.getByTgId(telegram_id)
+      if(user) {
+        bot.sendMessage(message.chat.id, user.firstName ?? '') // todo
+      } else {
+        bot.sendMessage(
+          message.chat.id,
+          'Мы еще не знакомы, Нажмите кнопку чтобы познакомиться',
+          { reply_markup: keyboards.initial }
+        )
       }
     }
   }

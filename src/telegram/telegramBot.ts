@@ -4,7 +4,8 @@ import config from "../config"
 import botController from "../controllers/botController"
 
 export const botCommands = {
-  start: '/start'
+  slashStart: '/start',
+  begin: 'начать'
 } as const
 export type botCommand = typeof botCommands[keyof typeof botCommands]
 
@@ -26,7 +27,7 @@ export class BotApp {
     this.bot.on('message', async (msg) => {
       if(msg.text) {
         if(this.botRoutes[msg.text]) {
-          this.botRoutes[msg.text](msg, this.bot)
+          this.botRoutes[msg.text.toLocaleLowerCase()](msg, this.bot)
         } else {
           this.bot.sendMessage(msg.chat.id, 'бот такое не умеет(')
         }
@@ -35,6 +36,8 @@ export class BotApp {
   }
 
   private botRoutes: Record<string, (msg: TelegramBot.Message, bot: TelegramBot) => Promise<any>> = {
-    [botCommands.start]: botController.createUser
+    [botCommands.slashStart]: botController.createUser,
+    [botCommands.begin]: botController.createUser,
+    'sta': botController.watchMe
   }
 }
