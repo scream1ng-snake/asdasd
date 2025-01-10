@@ -17,7 +17,7 @@ export class ServerApp {
     this.app.use(express.urlencoded({ extended: true }))
     this.app.use(express.json())
     this.app.use(this.prefix, backendRoutes)
-    frontRoutes.forEach(route => this.app.use(route, express.static('./public')))
+    frontRoutes.forEach(route => this.app.use(route, express.static('./static')))
   }
 
   startHttps() {
