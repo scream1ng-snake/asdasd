@@ -9,6 +9,7 @@ export default defineConfig({
   plugins: [svelte()],
   build: { outDir: "./../../build/static" },
   server: {
+    port: config.https ? 443 : 3000,
     https: config.https
       ? {
         key: readFileSync('./../../ssl/key.pem', 'utf-8'),

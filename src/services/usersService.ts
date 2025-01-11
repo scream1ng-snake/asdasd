@@ -1,5 +1,5 @@
 import { dataSource } from "../db/dataSource"
-import { User } from "../entities/userEntity"
+import { roles, User } from "../entities/userEntity"
 import { Logger } from "../utils/logger"
 type IUser = Omit<User, 'id'>
 
@@ -7,9 +7,13 @@ class userService {
   private logger = new Logger('users service')
   create = async (user: IUser) => {
     const repo = dataSource.getRepository(User)
+    const count = await repo.count()
+    if(!count) {
+      user.role = roles.master
+    }
     const createdUser = repo.create(user)
     const saved = await repo.save(createdUser)
-    this.logger.log(`пользователь ${saved.firstName} создан`)
+    this.logger.log(`${saved.role} ${saved.firstName} создан`)
     return saved
   }
 

@@ -3,14 +3,12 @@ import { Entity, Column, PrimaryGeneratedColumn } from "typeorm"
 import { Optional, UUID } from "../utils/types"
 
 
-export const userStages = {
-  onHome: 'onHome',
-  onBooking: 'onBooking',
-  onCatalog: 'onCatalog',
-  onPayment: 'onPayment',
+export const roles = {
+  user: 'user',
+  master: 'master',
 } as const
 
-export type userStage = typeof userStages[keyof typeof userStages]
+export type Role = typeof roles[keyof typeof roles]
 
 @Entity()
 export class User {
@@ -32,6 +30,6 @@ export class User {
   @Column('text', { nullable: true })
   phone_number: Optional<string>
 
-  @Column('text', { default: userStages.onHome })
-  stage: userStage = userStages.onHome
+  @Column('text', { default: roles.user })
+  role: Role = roles.user
 }

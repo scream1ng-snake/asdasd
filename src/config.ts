@@ -5,6 +5,7 @@ const config = {
   dev: true,
   port: process.env.APP_PORT,
   https: process.env.APP_HTTPS === 'true',
+  frontHost: process.env.APP_FRONT_HOST,
   db: {
     type: process.env.DB_TYPE,
     host: process.env.DB_HOST,

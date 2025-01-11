@@ -5,7 +5,8 @@ import botController from "../controllers/botController"
 
 export const botCommands = {
   slashStart: '/start',
-  begin: 'начать'
+  begin: 'начать',
+  link: 'связь'
 } as const
 export type botCommand = typeof botCommands[keyof typeof botCommands]
 
@@ -38,6 +39,6 @@ export class BotApp {
   private botRoutes: Record<string, (msg: TelegramBot.Message, bot: TelegramBot) => Promise<any>> = {
     [botCommands.slashStart]: botController.createUser,
     [botCommands.begin]: botController.createUser,
-    'sta': botController.watchMe
+    [botCommands.link]: botController.getAbout
   }
 }

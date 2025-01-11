@@ -30,6 +30,7 @@ npm run start:dev:client
 ```bash
 APP_PORT=80
 APP_HTTPS=true
+APP_FRONT_HOST=https://mynetwork.local
 DB_TYPE=postgres
 DB_HOST=example
 DB_PORT=5432
