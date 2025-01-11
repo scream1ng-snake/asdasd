@@ -5,7 +5,6 @@ import { readFileSync } from 'fs'
 import dotenv from 'dotenv'
 import config from './../config'
 dotenv.config({ path: './../../.env' })
-console.log(config.https)
 export default defineConfig({
   plugins: [svelte()],
   build: { outDir: "./../../build/static" },
