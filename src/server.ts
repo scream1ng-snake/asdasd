@@ -23,10 +23,14 @@ export class ServerApp {
   startHttps() {
     const key = fs.readFileSync('ssl/key.pem', 'utf8')
     const cert = fs.readFileSync('ssl/cert.pem', 'utf8')
+    if(!key || !cert) {
+      console.error('No key or cert')
+      process.exit(1)
+    }
     const credentials = { key, cert }
     const httpsServer = https.createServer(credentials, this.app)
-    httpsServer.listen(config.httpsPort, () => {
-      this.logger.log('HTTPS started on port: ' + config.httpsPort)
+    httpsServer.listen(config.port, () => {
+      this.logger.log('HTTPS started on port: ' + config.port)
     })
     
      

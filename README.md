@@ -29,6 +29,7 @@ npm run start:dev:client
 можно использовать `.env` файл в корне проекта или запускать команду `node build.js` с аргументами
 ```bash
 APP_PORT=80
+APP_HTTPS=true
 DB_TYPE=postgres
 DB_HOST=example
 DB_PORT=5432

@@ -4,8 +4,7 @@ dotenv.config()
 const config = {
   dev: true,
   port: process.env.APP_PORT,
-  httpsPort: null,
-  https: false,
+  https: process.env.APP_HTTPS === 'true',
   db: {
     type: process.env.DB_TYPE,
     host: process.env.DB_HOST,
