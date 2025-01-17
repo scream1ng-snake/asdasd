@@ -7,6 +7,7 @@ import { frontendRoutes } from './routes/frontend_routes'
 import { dataSource } from './db/dataSource'
 import config from './config'
 import { Logger } from './utils/logger'
+import errorMiddleware from './middlewares/error'
 
 export class ServerApp {
   private prefix = '/api'
@@ -16,7 +17,8 @@ export class ServerApp {
   configure() {
     this.app.use(express.urlencoded({ extended: true }))
     this.app.use(express.json())
-    this.app.use(this.prefix, backendRoutes)
+    this.app.use(this.prefix, backendRoutes)  
+    this.app.use(errorMiddleware)
     frontendRoutes.forEach(route => this.app.use(route, express.static('./static')))
   }
 
