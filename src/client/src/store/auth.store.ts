@@ -5,6 +5,7 @@ import type { Optional } from '../../../utils/types';
 import type { AppInstance } from './root.store';
 import { http } from '../utils/http';
 import { useTelegram } from '../utils/telegram.hook';
+import { toastsStore } from './toasts.store';
 
 
 export const AuthStates = {
@@ -45,6 +46,7 @@ class AuthStore {
             if(user) {
               this.setUser(user)
               this.setState('AUTHORIZED')
+              toastsStore.show(`Привет, ${user.firstName}`)
             } else {
               this.setUser(null)
               this.setState('NOT_AUTHORIZED')

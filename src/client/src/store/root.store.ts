@@ -2,6 +2,7 @@
 import { Logger } from '../utils/logger';
 import { useTelegram } from '../utils/telegram.hook';
 import { authStore } from './auth.store';
+import { toastsStore } from './toasts.store';
 
 export const AppInstances = {
   telegram: 'telegram',
@@ -12,6 +13,7 @@ export type AppInstance = typeof AppInstances[keyof typeof AppInstances]
 class RootStore {
   logger = new Logger('root-store')
   auth = authStore
+  toasts = toastsStore
 
   instance: AppInstance = 'browser'
   constructor() {
