@@ -1,11 +1,11 @@
 import { dataSource } from "../db/dataSource"
-import { roles, User } from "../entities/userEntity"
+import { IUser, roles, User } from "../entities/userEntity"
 import { Logger } from "../utils/logger"
-type IUser = Omit<User, 'id'>
+export type ICreateUser = Omit<IUser, 'id'>
 
 class userService {
   private logger = new Logger('users service')
-  create = async (user: IUser) => {
+  create = async (user: ICreateUser) => {
     const repo = dataSource.getRepository(User)
     const count = await repo.count()
     if(!count) {
@@ -19,15 +19,21 @@ class userService {
 
   getOne = async (id: UUID) => {
     const repo = dataSource.getRepository(User)
-    return await repo.findOne({ where: { id }})
+    return await repo.findOne({ 
+      where: { id }, 
+      relations: ['bookedSlots', 'createdSlots']
+    })
   }
 
   getByTgId = async (telegram_id: string) => {
     const repo = dataSource.getRepository(User)
-    return await repo.findOne({ where: { telegram_id }})
+    return await repo.findOne({ 
+      where: { telegram_id }, 
+      relations: ['bookedSlots', 'createdSlots']
+    })
   }
 
-  updateByTgID = async (telegram_id: string, newData: IUser) => {
+  updateByTgID = async (telegram_id: string, newData: ICreateUser) => {
     const repo = dataSource.getRepository(User)
     const user = await this.getByTgId(telegram_id)
     if(user) {

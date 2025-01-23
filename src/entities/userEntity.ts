@@ -1,6 +1,7 @@
 // @ts-nocheck
-import { Entity, Column, PrimaryGeneratedColumn } from "typeorm"
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from "typeorm"
 import { Optional, UUID } from "../utils/types"
+import { Slot } from "./slotEntity"
 
 
 export const roles = {
@@ -10,8 +11,20 @@ export const roles = {
 
 export type Role = typeof roles[keyof typeof roles]
 
+export interface IUser {
+  id: UUID
+  telegram_id: Optional<string>
+  firstName: Optional<string>
+  lastName: Optional<string>
+  birthday: Optional<Date>
+  phone_number: Optional<string>
+  role: Role
+  bookedSlots: Slot[]
+  createdSlots: Slot[]
+}
+
 @Entity()
-export class User {
+export class User implements IUser {
   @PrimaryGeneratedColumn("uuid")
   id: UUID
 
@@ -32,4 +45,10 @@ export class User {
 
   @Column('text', { default: roles.user })
   role: Role = roles.user
+
+  @OneToMany(() => Slot, slot => slot.costumer)  
+  bookedSlots: Slot[]
+
+  @OneToMany(() => Slot, slot => slot.master)  
+  createdSlots: Slot[]
 }

@@ -1,5 +1,5 @@
 import TelegramBot, { Message } from "node-telegram-bot-api"
-import usersService from "../services/usersService"
+import usersService, { ICreateUser } from "../services/usersService"
 import { Logger } from "../utils/logger"
 import { keyboards } from "../utils/telegramKeyboards"
 import { messages } from "../telegram/messages/messages"
@@ -13,24 +13,39 @@ class botController {
       const telegram_id = String(message.from.id)
       const { first_name, last_name } = message.from
       const userExists = await usersService.getByTgId(telegram_id)
-      const data = {
+      const data: ICreateUser = {
         telegram_id,
         firstName: first_name ?? null,
         lastName: last_name ?? null,
         phone_number: message.contact?.phone_number ?? null,
         birthday: null,
-        role: userExists ? userExists.role : roles.user
+        role: userExists ? userExists.role : roles.user,
+        bookedSlots: userExists ? userExists.bookedSlots : [],
+        createdSlots: userExists ? userExists.createdSlots : [],
       }
 
       const keyboard = {
-        reply_markup: keyboards.home
+        reply_markup: keyboards.home(telegram_id)
+      }
+      const adminKeyboard = {
+        reply_markup: keyboards.master(telegram_id)
       }
       if(userExists) {
         const updated = await usersService.updateByTgID(telegram_id, data)
-        if(updated) bot.sendMessage(message.chat.id, createMessage(replace.$USER$, updated.firstName ?? 'пользователь', messages.hello), keyboard)
+        if(updated) {
+          if(updated.role === 'master') {
+            bot.sendMessage(message.chat.id, createMessage(replace.$USER$, updated.firstName ?? 'админ', messages.welcomeMaster), adminKeyboard)
+          } else {
+            bot.sendMessage(message.chat.id, createMessage(replace.$USER$, updated.firstName ?? 'пользователь', messages.hello), keyboard)
+          }
+        }
       } else {
         const created = await usersService.create(data)
-        bot.sendMessage(message.chat.id, createMessage(replace.$USER$, created.firstName ?? 'пользователь', messages.welcome), keyboard)
+        if(created.role === 'master') {
+          bot.sendMessage(message.chat.id, createMessage(replace.$USER$, created.firstName ?? 'админ', messages.welcomeMaster), adminKeyboard)
+        } else {
+          bot.sendMessage(message.chat.id, createMessage(replace.$USER$, created.firstName ?? 'пользователь', messages.welcome), keyboard)
+        }
       }
     }
   }
