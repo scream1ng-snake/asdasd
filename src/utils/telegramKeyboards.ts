@@ -10,17 +10,41 @@ type keyboard = InlineKeyboardMarkup
 
 export const keyboards = {
   initial: {
-    keyboard: [[{ text: 'начать' }]]
+    keyboard: [[{ text: 'Начать' }]]
   },
-  home: {
+  home: (tgId: string) => (
+    {
+      keyboard: [
+        [
+          { 
+            text: 'Записаться', 
+            web_app: { 
+              url: config.frontHost + frontRoutes["/booking"] + "?tgId=" + tgId 
+            } 
+          }, 
+          { 
+            text: 'Каталог', 
+            web_app: { 
+              url: config.frontHost + frontRoutes["/catalog"] + "?tgId=" + tgId 
+            } 
+          }
+        ], 
+        [{ text: 'Мои чеки' }], 
+        [{ text: 'Связь' }]
+      ]
+    }
+  ),
+  master: (tgId: string) => ({
     keyboard: [
       [
-        { text: 'Записаться', web_app: { url: config.frontHost + frontRoutes["/booking"] } }, 
-        { text: 'Каталог', web_app: { url: config.frontHost + frontRoutes["/catalog"] } }
-      ], 
-      [{ text: 'Мои чеки' }], 
-      [{ text: 'Связь' }]
+        { 
+          text: 'Админка', 
+          web_app: { 
+            url: config.frontHost + frontRoutes['/admin'] + "?tgId=" + tgId 
+          } 
+        }
+      ]
     ]
-  }
+  })
 }
 
