@@ -11,9 +11,7 @@ class ToastStore {
       allMessages = [...messages, text]
       return allMessages
     })
-    console.log(allMessages)
     const index = allMessages.indexOf(text);
-    console.log(index)
 
     let timeout: ReturnType<typeof setTimeout> | null = null;
     timeout = setTimeout(() => {
@@ -24,8 +22,6 @@ class ToastStore {
   }
 
   closeMessage(index: number) {
-    console.log('deleting')
-    console.log(index)
     this.messages.update(messages => {
       messages.splice(index, 1)
       return messages

@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { toastsStore } from '../store/toasts.store';
+  import { Container } from '@sveltestrap/sveltestrap';
+import { toastsStore } from '../store/toasts.store';
   import { onDestroy } from 'svelte';  
   import { fade } from 'svelte/transition';  
   let toasts: string[]
@@ -9,8 +10,10 @@
   onDestroy(unsubscribe);
 </script>
 
-{#each toasts as toast}  
-  <div class="alert alert-success" in:fade out:fade>
-    {toast}
-  </div>
-{/each} 
+<Container>
+  {#each toasts as toast}  
+    <div class="alert alert-success" in:fade out:fade>
+      {toast}
+    </div>
+  {/each} 
+</Container>
