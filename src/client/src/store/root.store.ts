@@ -1,34 +1,34 @@
-import { writable, type Subscriber, type Writable } from 'svelte/store';  
+// import { writable, type Subscriber, type Writable } from 'svelte/store';  
+import { Logger } from '../utils/logger';
+import { useTelegram } from '../utils/telegram.hook';
+import { authStore } from './auth.store';
 
-class RootStore {  
-  state: Writable<{ count: number, name: string }>
+export const AppInstances = {
+  telegram: 'telegram',
+  browser: 'browser',
+} as const
+export type AppInstance = typeof AppInstances[keyof typeof AppInstances]
+
+class RootStore {
+  logger = new Logger('root-store')
+  auth = authStore
+
+  instance: AppInstance = 'browser'
   constructor() {
-    this.state = writable({  
-      count: 0,  
-      name: 'world',  
-    });  
-  }  
+    this.instance = this.whereAppRunning()
+    this.auth.authorize(this.instance)
+  }
 
-  setCount(value: number) {  
-    this.state.update(state => {  
-      return { ...state, count: value };  
-    });  
-  }  
 
-  incrementCount() {  
-    this.state.update(state => {  
-      return { ...state, count: state.count + 1 };  
-    });  
-  }  
-  setName(newName: string) {  
-    this.state.update(state => {  
-      return { ...state, name: newName };  
-    });  
-  }  
-
-  subscribe(run: Subscriber<{ count: number ,name: string }>) {  
-    return this.state.subscribe(run);  
-  }  
+  private whereAppRunning = (): AppInstance => {
+    const tg = useTelegram()
+    if(tg.platform && tg.platform !== "unknown") {
+      this.logger.log('мы в телеграме')
+      return 'telegram'
+    }
+    this.logger.log('мы в браузере')
+    return 'browser'
+  }
 }  
 
 export const rootStore = new RootStore();
