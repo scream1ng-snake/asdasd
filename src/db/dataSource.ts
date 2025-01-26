@@ -1,7 +1,8 @@
 import { DataSource } from "typeorm"
 import config from "../config"
-import { User } from "../entities/userEntity"
-import { Slot } from "../entities/slotEntity"
+import { User } from "../entities/user.entity"
+import { Schedule } from "../entities/schedule.entity"
+import Booking from "../entities/booking.entity"
 
 export const dataSource = new DataSource({
     // @ts-ignore
@@ -11,7 +12,7 @@ export const dataSource = new DataSource({
     username: config.db.user,
     password: config.db.password,
     database: config.db.database,
-    entities: [User, Slot],
+    entities: [User, Schedule, Booking],
     logging: false,
     synchronize: true,
 })

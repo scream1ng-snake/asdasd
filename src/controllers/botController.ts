@@ -4,24 +4,26 @@ import { Logger } from "../utils/logger"
 import { keyboards } from "../utils/telegramKeyboards"
 import { messages } from "../telegram/messages/messages"
 import createMessage, { replace } from "../telegram/messages/createMessage"
-import { roles } from "../entities/userEntity"
+import { roles } from "../entities/user.entity"
+import { botService } from "../services/botService"
 
 class botController {
   logger = new Logger('tg bot controller')
-  async createUser(message: Message, bot: TelegramBot) {
+  async createUser(message: Message, bot: TelegramBot) { // todo оптимизировать скорость
     if(message.from?.id) {
       const telegram_id = String(message.from.id)
       const { first_name, last_name } = message.from
       const userExists = await usersService.getByTgId(telegram_id)
+      const images = await botService.getProfileImage(bot, message.chat.id)
       const data: ICreateUser = {
         telegram_id,
         firstName: first_name ?? null,
         lastName: last_name ?? null,
         phone_number: message.contact?.phone_number ?? null,
         birthday: null,
+        bigImage: images?.big || null,
+        smallImage: images?.small ?? null,
         role: userExists ? userExists.role : roles.user,
-        bookedSlots: userExists ? userExists.bookedSlots : [],
-        createdSlots: userExists ? userExists.createdSlots : [],
       }
 
       const keyboard = {
@@ -30,6 +32,7 @@ class botController {
       const adminKeyboard = {
         reply_markup: keyboards.master(telegram_id)
       }
+      
       if(userExists) {
         const updated = await usersService.updateByTgID(telegram_id, data)
         if(updated) {
@@ -56,5 +59,7 @@ class botController {
       bot.sendMessage(message.chat.id, messages.about)
     }
   }
+
+  
 }
 export default new botController()

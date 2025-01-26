@@ -1,5 +1,5 @@
 import { dataSource } from "../db/dataSource"
-import { IUser, roles, User } from "../entities/userEntity"
+import { IUser, roles, User } from "../entities/user.entity"
 import { Logger } from "../utils/logger"
 export type ICreateUser = Omit<IUser, 'id'>
 
@@ -21,7 +21,7 @@ class userService {
     const repo = dataSource.getRepository(User)
     return await repo.findOne({ 
       where: { id }, 
-      relations: ['bookedSlots', 'createdSlots']
+      relations: ['bookings', 'schedule'],
     })
   }
 
@@ -29,7 +29,7 @@ class userService {
     const repo = dataSource.getRepository(User)
     return await repo.findOne({ 
       where: { telegram_id }, 
-      relations: ['bookedSlots', 'createdSlots']
+      relations: ['bookings', 'schedule']
     })
   }
 
