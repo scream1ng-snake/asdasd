@@ -20,3 +20,6 @@ export const inMilliseconds = {
   hour: 60 * 60 * 1000,
   day: 24 * 60 * 60 * 1000,
 }
+
+export const maxTime = (date: Date) => 
+  new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999) 
