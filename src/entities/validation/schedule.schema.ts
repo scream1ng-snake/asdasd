@@ -1,4 +1,4 @@
-import { object, string, array } from 'yup';
+import { object, string, array, date } from 'yup';
 
 const Slot = object().shape({
   id: string().required(),
@@ -19,5 +19,16 @@ const scheduleSchemes = {
     friday: SlotArray,
     saturday: SlotArray,
   }),
+  register: object({
+    masterId: string().required(),
+    clientId: string().required(),
+    slotId: string().required(),
+    date: date().required() 
+  }),
+  addScheduleChange: object({
+    date: date().required(),
+    slots: SlotArray,
+    scheduleId: string().required()
+  })
 }
 export default scheduleSchemes

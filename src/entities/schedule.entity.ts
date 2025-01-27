@@ -1,6 +1,7 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm"
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm"
 import { UUID } from "../utils/types"
 import { User } from "./user.entity"
+import ScheduleChange from "./scheduleChanges,enitty"
 
 export interface Slot {
   id: UUID
@@ -20,6 +21,8 @@ export interface ISchedule {
 
 export type ICreateSchedule = ISchedule & { author: UUID }
 
+
+
 @Entity()
 export class Schedule implements ISchedule {
   @PrimaryGeneratedColumn("uuid") id!: UUID
@@ -32,4 +35,7 @@ export class Schedule implements ISchedule {
   @Column("json") saturday!: Slot[]
   @OneToOne(() => User, u => u.id)
   master!: User
+
+  @OneToMany(() => ScheduleChange, sc => sc.schedule)
+  changes!: ScheduleChange[]
 }

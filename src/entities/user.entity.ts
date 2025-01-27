@@ -29,16 +29,22 @@ export class User implements IUser {
   @Column('text', { nullable: true }) telegram_id!: Optional<string>
   @Column('text', { nullable: true }) firstName!: Optional<string>
   @Column('text', { nullable: true }) lastName!: Optional<string>
-  @Column('date', { nullable: true }) birthday!: Optional<Date>
+  @Column('timestamptz', { nullable: true }) birthday!: Optional<Date>
   @Column('text', { nullable: true }) phone_number!: Optional<string>
   @Column('text', { nullable: true }) bigImage!: Optional<string>
   @Column('text', { nullable: true }) smallImage!: Optional<string>
   @Column('text', { default: roles.user }) role: Role = roles.user
 
+  /** это расписание, его могут иметь только мастера */
   @OneToOne(() => Schedule, s => s.master) 
   @JoinColumn()
   schedule!: Schedule | null
   
+  /** это брони, бронировать могут только пользователи */
   @OneToMany(() => Booking, b => b.client)
   bookings!: Booking[]
+
+  /** те же брони, но от лица мастера */
+  @OneToMany(() => Booking, b => b.master)
+  books!: Booking[]
 }
