@@ -33,7 +33,7 @@ export class Schedule implements ISchedule {
   @Column("json") thursday!: Slot[]
   @Column("json") friday!: Slot[]
   @Column("json") saturday!: Slot[]
-  @OneToOne(() => User, u => u.id)
+  @OneToOne(() => User, u => u.schedule)
   master!: User
 
   @OneToMany(() => ScheduleChange, sc => sc.schedule)
