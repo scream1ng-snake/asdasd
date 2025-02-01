@@ -5,8 +5,18 @@
   import { frontRoutes } from './../../routes/frontend_routes'
   import Admin from './routes/Admin.svelte';
   import Navbar from './components/Navbar.svelte';
-    import Toasts from './components/Toasts.svelte';
- 
+  import Toasts from './components/Toasts.svelte';
+  import { authStore } from './store/auth.store';
+  import { onDestroy } from 'svelte';  
+  import type { Optional } from '../../utils/types';
+  import type { User } from '../../entities/user.entity';
+  import { rootStore } from './store/root.store';
+  let user: Optional<User>
+  const unsubscribe = authStore.user.subscribe(data => {  
+    user = data
+  })
+  rootStore
+  onDestroy(unsubscribe);
 </script>
 
 <main class="wrapper">
@@ -19,9 +29,11 @@
     <Route path={frontRoutes['/catalog']}>
       <Catalog />
     </Route>
-    <Route path={frontRoutes['/admin']}>
-      <Admin />
-    </Route>
+    {#if user?.role === 'master'}
+      <Route path={frontRoutes['/admin']}>
+        <Admin />
+      </Route>
+    {/if}
   </Router>
 </main>
 

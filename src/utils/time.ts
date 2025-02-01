@@ -9,6 +9,16 @@ export const _weekDays = {
   saturday: 'saturday',
 } as const
 
+export const rusWeekDays = {
+  [_weekDays.monday]: 'Понедельник',
+  [_weekDays.tuesday]: 'Вторник',
+  [_weekDays.wentsday]: 'Среда',
+  [_weekDays.thursday]: 'Четверг',
+  [_weekDays.friday]: 'Пятница',
+  [_weekDays.saturday]: 'Суббота',
+  [_weekDays.sunday]: 'Воскресенье',
+}
+
 export type WeekDay = typeof _weekDays[keyof typeof _weekDays]
 
 export const weekDays = Object.keys(_weekDays) as WeekDay[]

@@ -1,20 +1,25 @@
 import { writable, type Writable } from 'svelte/store';
 
-
+type ToastType = 'danger' | 'success' | 'info'
+export type Toast = {
+  message: string
+  type: ToastType
+}
 
 class ToastStore {
-  messages: Writable<string[]> = writable([])
+  messages: Writable<Toast[]> = writable([])
 
-  show(text: string) {
-    let allMessages: string[] = []
+  show(message: string, type: ToastType = 'info') {
+    let allMessages: Toast[] = []
+    const newToast = { message, type }
     this.messages.update(messages => {
-      allMessages = [...messages, text]
+      allMessages = [...messages, newToast]
       return allMessages
     })
-    const index = allMessages.indexOf(text);
 
     let timeout: ReturnType<typeof setTimeout> | null = null;
     timeout = setTimeout(() => {
+      const index = allMessages.indexOf(newToast)
       if (index > -1) {
         this.closeMessage(index);
       }

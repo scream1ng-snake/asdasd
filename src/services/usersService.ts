@@ -4,6 +4,16 @@ import { Logger } from "../utils/logger"
 export type ICreateUser = Omit<IUser, 'id'>
 
 class userService {
+  private requiredUserRelations = [
+    'schedule', 
+    'bookings', 
+    'bookings.client', 
+    'bookings.master', 
+    'books',
+    'books.client',
+    'books.master',
+  ]
+
   private logger = new Logger('users service')
   create = async (user: ICreateUser) => {
     const repo = dataSource.getRepository(User)
@@ -21,7 +31,7 @@ class userService {
     const repo = dataSource.getRepository(User)
     return await repo.findOne({ 
       where: { id }, 
-      relations: ['bookings', 'schedule'],
+      relations: this.requiredUserRelations,
     })
   }
 
@@ -29,7 +39,15 @@ class userService {
     const repo = dataSource.getRepository(User)
     return await repo.findOne({ 
       where: { telegram_id }, 
-      relations: ['bookings', 'schedule']
+      relations: this.requiredUserRelations
+    })
+  }
+
+  getMasters = async () => {
+    const repo = dataSource.getRepository(User)
+    return repo.find({ 
+      where: { role: 'master' }, 
+      relations: this.requiredUserRelations
     })
   }
 

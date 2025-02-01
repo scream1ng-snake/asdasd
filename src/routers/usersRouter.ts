@@ -4,5 +4,6 @@ import asyncHandler from '../middlewares/asyncHandle'
 
 const usersRouter = Router()
 usersRouter.get('/', asyncHandler(usersController.getOne))
+usersRouter.get('/master', asyncHandler(usersController.getMasters))
 
 export default usersRouter

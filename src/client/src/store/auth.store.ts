@@ -1,6 +1,6 @@
 import { writable, type Writable } from 'svelte/store';  
 import { Logger } from '../utils/logger'
-import type { IUser } from '../../../entities/userEntity'
+import type { IUser, User } from '../../../entities/user.entity'
 import type { Optional } from '../../../utils/types';
 import type { AppInstance } from './root.store';
 import { http } from '../utils/http';
@@ -28,8 +28,8 @@ class AuthStore {
     this.state.update(() => newState)
   }
 
-  user: Writable<Optional<IUser>> = writable(null)
-  setUser = (user: Optional<IUser>) => {
+  user: Writable<Optional<User>> = writable(null)
+  setUser = (user: Optional<User>) => {
     this.user.update(() => user)
   }
 
@@ -42,7 +42,7 @@ class AuthStore {
           
           if(('tgId' in searchParams) || userId) {
             const tgId = (searchParams.tgId || userId)
-            const user: Optional<IUser> = await http.get('/users', { tgId })
+            const user: Optional<User> = await http.get('/users', { tgId })
             if(user) {
               this.setUser(user)
               this.setState('AUTHORIZED')

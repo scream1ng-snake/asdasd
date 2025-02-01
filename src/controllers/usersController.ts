@@ -9,7 +9,9 @@ class usersController {
     if(req.query.tgId) return usersService.getByTgId(req.query.tgId as string)
     throw new HttpError(400, 'no tgId or id param')
   }
-
+  getMasters(req: Request, res: Response) {
+    return usersService.getMasters()
+  }
   
 }
 
