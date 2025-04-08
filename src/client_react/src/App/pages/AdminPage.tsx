@@ -10,20 +10,31 @@ import AdaptivePopup from "../components/common/Popup";
 import { Slot } from "../../../../entities/schedule.entity";
 import { v4 } from "uuid";
 import { BookForMaster } from "../components/common/Book";
-import Booking from "../../../../entities/booking.entity";
+// import Booking from "../../../../entities/booking.entity";
+import { WatchBookForMaster } from "../components/popups/WatchBook";
 
 export const AdminPage: FC = observer(() => {
   const { auth, admin } = useStore()
-
-  let plannedBookings: Booking[] = []
-  let pastBookings: Booking[] = []
-  auth.user?.books.forEach(book => {
-    Date.now() < new Date(book.date).getTime()
-      ? plannedBookings.push(book)
-      : pastBookings.push(book)
-  })
+  // todo
+  // let plannedBookings: Booking[] = []
+  // let pastBookings: Booking[] = []
+  // auth.user?.books.forEach(book => {
+  //   const targetDate = new Date(book.date)
+  //   const [hh, mm] = book.hhmm.split(':').map(Number)
+  //   targetDate.setHours(hh)
+  //   targetDate.setMinutes(mm)
+  //   targetDate.setSeconds(0)
+  //   targetDate.setMilliseconds(0)
+  //   Date.now() < targetDate.getTime()
+  //     ? plannedBookings.push(book)
+  //     : pastBookings.push(book)
+  // })
   return <Wrapper>
     <EditSchedule />
+    <WatchBookForMaster 
+      show={admin.watchBook.show}
+      close={admin.watchBook.close}
+    />
     <Container className="p-0">
       <Toasts className="mt-3" />
       <CapsuleTabs defaultActiveKey='schedule' className="cfg">
@@ -54,7 +65,7 @@ export const AdminPage: FC = observer(() => {
                       ? <Empty description='Пусто' />
                       : null
                     }
-                    <Space wrap justify='center' className="mt-2 mb-2">
+                    <Space wrap justify='center' className="mt-3 mb-2">
                       {!auth.user!.schedule?.[dayOfWeek].length
                         ? null
                         : auth.user!.schedule![dayOfWeek].map(slot =>
@@ -77,7 +88,7 @@ export const AdminPage: FC = observer(() => {
         </CapsuleTabs.Tab>
         <CapsuleTabs.Tab title='Брони' key='bookings'>
           <List style={{ borderRadius: 20, overflow: 'hidden' }}>
-            {plannedBookings.map(pb => <BookForMaster key={pb.id} record={pb} />)}
+            {auth.user?.books.map(pb => <BookForMaster key={pb.id} record={pb} />)}
           </List>
         </CapsuleTabs.Tab>
         <CapsuleTabs.Tab title='Статистика' key='stats'>
@@ -273,7 +284,7 @@ const AddSlot: FC<{ confirm: (slot: Slot) => void }> = observer(({ confirm }) =>
           />
         </Form.Item>
       </Form>
-      <Space style={{ width: '100%' }} justify='end'>
+      <Space style={{ width: '100%' }} justify='end' className="mt-3">
         <Button color='default' onClick={onClose} shape='rounded'>
           Закрыть
         </Button>

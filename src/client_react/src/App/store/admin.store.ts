@@ -3,12 +3,15 @@ import { Request, http, Popup, type WeekDay } from '../utils';
 import type { ICreateSchedule, ISchedule, Schedule } from '../../../../entities/schedule.entity';
 import { RootStore } from './root.store';
 import { makeAutoObservable, reaction } from 'mobx';
+import Booking, { IConfirmBooking } from '../../../../entities/booking.entity';
+import { AxiosError } from 'axios';
 
 
 export class AdminStore {
   logger = new Logger('admin-store')
 
   editScheduleDayPopup = new Popup()
+  watchBook = new Popup<Booking>()
 
   selectedDay: Optional<WeekDay> = null
   editScheduleDay = (day: WeekDay) => {
@@ -72,6 +75,29 @@ export class AdminStore {
       }
     } catch (error) {
       setState("FAILED")
+      console.error(error)
+    }
+  })
+
+  confirmBooking = new Request(async (setState, payload: IConfirmBooking) => {
+    try {
+      setState("LOADING")
+      const result: Booking = await http.post("schedule/confirmBooking", payload)
+      if(result) {
+        const targetBooking = this.root.auth.user?.books.find(book => 
+          book.id === payload.bookingId
+        )
+        if(targetBooking) targetBooking.confirmed = true
+        setState("COMPLETED")
+        this.watchBook.close()
+        this.root.toasts.show('Подтверждено')
+      }
+    } catch (error) {
+      setState("FAILED")
+      if(error instanceof AxiosError) {
+        if(error.response?.data.error) this.root.toasts.show(error.response?.data.error, 'danger')
+      }
+      this.watchBook.close()
       console.error(error)
     }
   })

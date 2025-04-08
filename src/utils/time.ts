@@ -1,3 +1,4 @@
+import moment from "moment"
 
 export const _weekDays = {
   sunday: 'sunday',
@@ -33,3 +34,25 @@ export const inMilliseconds = {
 
 export const maxTime = (date: Date) => 
   new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999) 
+
+
+export function formatDate(inputDate: string) {  
+  const date = new Date(inputDate).getTime()
+  const now = new Date().getTime()
+  const diff = Math.ceil((date - now) / inMilliseconds.day)
+
+  switch (diff) {  
+    case 0:
+      return 'сегодня';
+    case 1:  
+      return "завтра";  
+    case 2:  
+      return "послезавтра";  
+    case -1:  
+      return "вчера";  
+    case -2:  
+      return "позавчера";  
+    default:  
+      return moment(inputDate).format("DD-MM-YYYY")
+  }  
+}  

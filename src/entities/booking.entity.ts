@@ -8,6 +8,10 @@ export interface IRegisterSlot {
   hhmm: string
   date: Date
 }
+export interface IConfirmBooking {
+  bookingId: UUID
+  masterId: UUID
+}
 @Entity()
 class Booking {
   @PrimaryGeneratedColumn('uuid')
@@ -24,6 +28,12 @@ class Booking {
 
   @ManyToOne(() => User, u => u.id)
   master!: User
+
+  @Column('boolean', { default: false })
+  confirmed = false
+
+  @Column('boolean', { default: false })
+  payed = false
 }
 
 export default Booking

@@ -16,7 +16,13 @@ export const WaitingMasters: FC = observer(() => {
   let plannedBookings: Booking[] = []
   let pastBookings: Booking[] = []
   user.bookings.forEach(book => {
-    Date.now() < new Date(book.date).getTime()
+    const targetDate = new Date(book.date)
+    const [hh, mm] = book.hhmm.split(':').map(Number)
+    targetDate.setHours(hh)
+    targetDate.setMinutes(mm)
+    targetDate.setSeconds(0)
+    targetDate.setMilliseconds(0)
+    Date.now() < targetDate.getTime()
       ? plannedBookings.push(book)
       : pastBookings.push(book)
   })

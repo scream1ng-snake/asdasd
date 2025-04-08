@@ -42,6 +42,8 @@ export function formatDate(inputDate: string) {
   const diff = Math.ceil((date - now) / inMilliseconds.day)
 
   switch (diff) {  
+    case 0:
+      return 'сегодня';
     case 1:  
       return "завтра";  
     case 2:  

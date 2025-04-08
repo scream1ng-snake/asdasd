@@ -3,12 +3,13 @@ import { dataSource } from "../db/dataSource"
 import { ISchedule, Schedule, Slot } from "../entities/schedule.entity"
 import { HttpError } from "../utils/http.error"
 import { Logger } from "../utils/logger"
-import { inMilliseconds, maxTime, WeekDay, weekDays } from "../utils/time"
+import { formatDate, inMilliseconds, maxTime, weekDays } from "../utils/time"
 import usersService from "./usersService"
 import { range } from "../utils/range"
-import Booking, { IRegisterSlot } from "../entities/booking.entity"
+import Booking, { IConfirmBooking, IRegisterSlot } from "../entities/booking.entity"
 import ScheduleChange, { IScheduleChangeCreate } from "../entities/scheduleChanges,enitty"
 import { StatusCodes } from "http-status-codes"
+import { tgBot } from ".."
 
 class ScheduleService {
   private logger = new Logger('slot service')
@@ -182,6 +183,17 @@ class ScheduleService {
       client
     })
     const saved = await repo.save(booking)
+    if(master.telegram_id) 
+      tgBot.bot.sendMessage(
+        master.telegram_id,
+        `${client.firstName} ${client.lastName} забронировал(-а) окошко на ${formatDate(saved.date.toISOString())} в ${saved.hhmm}`
+      )
+    if(client.telegram_id) 
+      tgBot.bot.sendMessage(
+        client.telegram_id, 
+        `Вы записались к ${master.firstName} ${master.lastName} на ${formatDate(saved.date.toISOString())} в ${saved.hhmm}`
+      )
+
     this.logger.log(`${saved.client.firstName} забронировал слот ${slotExists.hhmm} у ${saved.master.firstName}`)
     return saved
   }
@@ -204,6 +216,49 @@ class ScheduleService {
       schedule
     })
     return changesRepo.save(created)
+  }
+
+  confirmBooking = async (payload: IConfirmBooking) => {
+    const repo = dataSource.getRepository(Booking)
+    const targetBooking = await repo.findOne({ 
+      where: { id: payload.bookingId },
+      relations: ['master', 'client']
+    })
+    if(!targetBooking) 
+      throw new HttpError(404, 'бронь не найдена')
+    if(targetBooking.master.id !== payload.masterId) 
+      throw new HttpError(403, 'Вы не можете подтверждать записи')
+
+    if(targetBooking.confirmed) return targetBooking
+    targetBooking.confirmed = true
+    const saved = await repo.save(targetBooking)
+    if(targetBooking.client.telegram_id) 
+      tgBot.bot.sendMessage(
+        targetBooking.client.telegram_id, 
+        `Запись подтверждена ${formatDate(targetBooking.date.toISOString())} ${targetBooking.hhmm}`
+      )
+    return saved
+  }
+
+  deleteBooking = async (payload: IConfirmBooking) => {
+    const repo = dataSource.getRepository(Booking)
+    const targetBooking = await repo.findOne({ 
+      where: { id: payload.bookingId },
+      relations: ['master', 'client']
+    })
+    if(!targetBooking) 
+      throw new HttpError(404, 'бронь не найдена')
+    if(targetBooking.master.id !== payload.masterId) 
+      throw new HttpError(403, 'Вы не можете удалять записи')
+
+    const deleted = await repo.remove(targetBooking)
+    if(deleted.client.telegram_id) {
+      tgBot.bot.sendMessage(
+        deleted.client.telegram_id,
+        `Запись отменена на ${formatDate(deleted.date.toISOString())} ${deleted.hhmm}`
+      )
+    }
+    return deleted
   }
 }
 

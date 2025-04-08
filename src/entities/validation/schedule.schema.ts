@@ -28,6 +28,10 @@ const scheduleSchemes = {
     date: date().required(),
     slots: SlotArray,
     scheduleId: string().required()
+  }),
+  confirmBooking: object({
+    bookingId: string().required(),
+    masterId: string().required()
   })
 }
 export default scheduleSchemes

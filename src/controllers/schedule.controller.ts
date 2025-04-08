@@ -31,6 +31,16 @@ class scheduleController {
     scheduleSchemes.addScheduleChange.validateSync(req.body)
     return scheduleService.addScheduleChange(req.body)
   }
+
+  confirmBooking = (req: Request, res: Response) => {
+    scheduleSchemes.confirmBooking.validateSync(req.body)
+    return scheduleService.confirmBooking(req.body)
+  }
+
+  deleteBooking = (req: Request, res: Response) => {
+    scheduleSchemes.confirmBooking.validateSync(req.body)
+    return scheduleService.deleteBooking(req.body)
+  }
 }
 
 export default new scheduleController()

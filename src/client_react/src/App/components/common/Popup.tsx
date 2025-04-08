@@ -1,6 +1,7 @@
 import { CenterPopup, Popup } from "antd-mobile";
 import { CSSProperties, FC, ReactNode } from "react";
 import { useDeviceType } from "../../hooks";
+import { Close } from "./Close";
 const defaultStyles = {
   mobile: {
     borderTopLeftRadius: 20,
@@ -40,6 +41,7 @@ const AdaptivePopup: FC<Props> = props => {
       maskClassName="d-xs-block d-sm-none"
       bodyClassName={`d-xs-block d-sm-none ${props.bodyClassName || ''}`}
       disableBodyScroll
+      closeIcon={<Close />}
     >
       {props.children}
     </Popup>
@@ -58,6 +60,7 @@ const AdaptivePopup: FC<Props> = props => {
       onClose={props.onClose}
       disableBodyScroll
       getContainer={document.body}
+      closeIcon={<Close />}
     >
       {props.children}
     </CenterPopup>

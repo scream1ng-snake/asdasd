@@ -3,9 +3,8 @@ import { FC, useEffect } from "react";
 import Wrapper from "../components/layout/Wrapper";
 import { Container } from "react-bootstrap";
 import { useStore } from "../hooks";
-import { AutoCenter, Button, Card, Divider, Image, List, NavBar, NoticeBar, Space } from "antd-mobile";
-import { rusWeekDays } from "../utils";
-import moment from "moment";
+import { AutoCenter, Button, Card, Divider, List,  NoticeBar, Space } from "antd-mobile";
+import { formatDate, rusWeekDays } from "../utils";
 import { User } from "../../../../entities/user.entity";
 import { DaySlots } from "../store";
 import { Ava, Toasts } from "../components";
@@ -66,7 +65,7 @@ function MasterSchedule(props: Props) {
         if (!daySlot.slots.length) return null
         return <div key={daySlot.date}>
           <Divider>
-            {rusWeekDays[daySlot.dayOfWeek] + ' ' + moment(daySlot.date).format("DD MM YYYY")}
+            {rusWeekDays[daySlot.dayOfWeek] + ' ' + formatDate(daySlot.date)}
           </Divider>
           <Space style={{ width: '100%' }} wrap justify='center'>
             {!daySlot.slots.length
@@ -130,7 +129,7 @@ const ConfirmBookingPopup: FC = observer(() => {
         <List.Item>
           <Between>
             <span>Дата:</span>
-            <span>{moment(date).format('DD-MM-YYYY')}</span>
+            <span>{formatDate(date)}</span>
           </Between>
         </List.Item>
         <List.Item>
