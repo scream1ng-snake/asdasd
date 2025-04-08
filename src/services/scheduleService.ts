@@ -43,7 +43,7 @@ class ScheduleService {
       throw new HttpError(400, 'такого мастера нет')
     
     if (!master.schedule) 
-      throw new HttpError(400, 'мастер еще не создал расписание') 
+      throw new HttpError(400, `мастер ${master.firstName} ${master.lastName} еще не создал расписание`) 
     
     let result = []
     const days = range(daysCount)
@@ -68,14 +68,14 @@ class ScheduleService {
       if(hasScheduleChange) {
          for (const slot of hasScheduleChange.slots) {
           const alreadyBooked = bookings.find(booking => 
-            moment(booking.date).isSame(moment(targetDate), 'day') && booking.slotId === slot.id
+            moment(booking.date).isSame(moment(targetDate), 'day') && booking.hhmm === slot.hhmm
           )
           if (!alreadyBooked) slots.push(slot)
         }
       } else {
         for (const slot of targetDaySlots) {
           const alreadyBooked = bookings.find(booking => 
-            moment(booking.date).isSame(moment(targetDate), 'day') && booking.slotId === slot.id
+            moment(booking.date).isSame(moment(targetDate), 'day') && booking.hhmm === slot.hhmm
           )
           if (!alreadyBooked) slots.push(slot)
         }
@@ -134,7 +134,7 @@ class ScheduleService {
       throw new HttpError(400, 'такого мастера нет')
     
     if (!master.schedule) 
-      throw new HttpError(400, 'мастер еще не создал расписание') 
+      throw new HttpError(400, `мастер ${master.firstName} ${master.lastName} еще не создал расписание`) 
 
     if (!client || client.role !== 'user')
       throw new HttpError(400, 'такого пользвоателя нет')
@@ -150,7 +150,7 @@ class ScheduleService {
     )
     let slotExists: Slot | undefined
     if(hasChanges) {
-      slotExists = hasChanges.slots.find(slot => slot.id === dto.slotId)
+      slotExists = hasChanges.slots.find(slot => slot.hhmm === dto.hhmm)
       if(!slotExists) 
         throw new HttpError(
           StatusCodes.BAD_REQUEST, 
@@ -159,7 +159,7 @@ class ScheduleService {
     } else {
       const targetDay = weekDays[new Date(dto.date).getDay()]
       const targetDaySlots = master.schedule![targetDay]
-      slotExists = targetDaySlots.find(slot => slot.id === dto.slotId)
+      slotExists = targetDaySlots.find(slot => slot.hhmm === dto.hhmm)
       if(!slotExists) 
         throw new HttpError(
           StatusCodes.BAD_REQUEST, 
@@ -167,7 +167,7 @@ class ScheduleService {
         )
     }
 
-    const alreadyBooked = bookings.find(book => book.slotId === dto.slotId)
+    const alreadyBooked = bookings.find(book => book.hhmm === dto.hhmm)
     if(alreadyBooked) 
       throw new HttpError(
         StatusCodes.BAD_REQUEST, 
@@ -176,13 +176,13 @@ class ScheduleService {
 
     const repo = dataSource.getRepository(Booking)
     const booking = repo.create({
-      slotId: dto.slotId,
+      hhmm: dto.hhmm,
       date: new Date(dto.date),
       master,
       client
     })
     const saved = await repo.save(booking)
-    this.logger.log(`${saved.client.firstName} забронировал слот ${slotExists.from} - ${slotExists.to} у ${saved.master.firstName}`)
+    this.logger.log(`${saved.client.firstName} забронировал слот ${slotExists.hhmm} у ${saved.master.firstName}`)
     return saved
   }
 

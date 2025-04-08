@@ -1,26 +1,34 @@
 import { observer } from "mobx-react-lite";
-import { CSSProperties, FC, useRef, useState } from "react";
+import { FC, useRef, useState } from "react";
 import Wrapper from "../components/layout/Wrapper";
 import { Col, Container, Row } from "react-bootstrap";
-import { Button, CapsuleTabs, Card, Form, Input, InputRef, List, NoticeBar, Space } from "antd-mobile";
+import { Button, CapsuleTabs, Card, Dialog, Empty, Form, Input, InputRef, List, NoticeBar, Space, Toast } from "antd-mobile";
 import { useStore } from "../hooks";
 import { Toasts } from "../components";
 import { rusWeekDays, weekDays } from "../utils";
 import AdaptivePopup from "../components/common/Popup";
 import { Slot } from "../../../../entities/schedule.entity";
 import { v4 } from "uuid";
+import { BookForMaster } from "../components/common/Book";
+import Booking from "../../../../entities/booking.entity";
 
 export const AdminPage: FC = observer(() => {
   const { auth, admin } = useStore()
-  if (!auth.user) return <NotAuth />
-  if (auth.user.role !== 'master') return <NotMaster />
+
+  let plannedBookings: Booking[] = []
+  let pastBookings: Booking[] = []
+  auth.user?.books.forEach(book => {
+    Date.now() < new Date(book.date).getTime()
+      ? plannedBookings.push(book)
+      : pastBookings.push(book)
+  })
   return <Wrapper>
     <EditSchedule />
-    <Container>
+    <Container className="p-0">
       <Toasts className="mt-3" />
       <CapsuleTabs defaultActiveKey='schedule' className="cfg">
         <CapsuleTabs.Tab title='Расписание' key='schedule'>
-          {!auth.user.schedule
+          {!admin.editingSchedule
             ? <NoticeBar
               color='info'
               shape='rounded'
@@ -42,16 +50,25 @@ export const AdminPage: FC = observer(() => {
                     onClick={() => admin.editScheduleDay(dayOfWeek)}
                     bodyClassName="p-0"
                   >
-                    <List>
-                      {!auth.user!.schedule![dayOfWeek].length
-                        ? <List.Item>Пусто</List.Item>
+                    {!auth.user!.schedule?.[dayOfWeek].length
+                      ? <Empty description='Пусто' />
+                      : null
+                    }
+                    <Space wrap justify='center' className="mt-2 mb-2">
+                      {!auth.user!.schedule?.[dayOfWeek].length
+                        ? null
                         : auth.user!.schedule![dayOfWeek].map(slot =>
-                          <List.Item key={slot.id} style={{ textWrap: 'nowrap' }}>
-                            {slot.from + " - " + slot.to}
-                          </List.Item>
+                          <Button
+                            key={slot.id}
+                            shape='rounded'
+                            fill='outline'
+                            size='small'
+                          >
+                            {slot.hhmm}
+                          </Button>
                         )
                       }
-                    </List>
+                    </Space>
                   </Card>
                 </Col>
               )}
@@ -59,7 +76,9 @@ export const AdminPage: FC = observer(() => {
           }
         </CapsuleTabs.Tab>
         <CapsuleTabs.Tab title='Брони' key='bookings'>
-          2
+          <List style={{ borderRadius: 20, overflow: 'hidden' }}>
+            {plannedBookings.map(pb => <BookForMaster key={pb.id} record={pb} />)}
+          </List>
         </CapsuleTabs.Tab>
         <CapsuleTabs.Tab title='Статистика' key='stats'>
           2
@@ -69,32 +88,6 @@ export const AdminPage: FC = observer(() => {
   </Wrapper>
 })
 
-function NotAuth() {
-  return <Wrapper>
-    <Container>
-      <NoticeBar
-        className="mt-3"
-        color='error'
-        shape='rounded'
-        icon={null}
-        content='Не авторизован'
-      />
-    </Container>
-  </Wrapper>
-}
-function NotMaster() {
-  return <Wrapper>
-    <Container>
-      <NoticeBar
-        className="mt-3"
-        color='error'
-        shape='rounded'
-        icon={null}
-        content='Вы не можете сюда заходить'
-      />
-    </Container>
-  </Wrapper>
-}
 
 
 const EditSchedule: FC = observer(() => {
@@ -104,7 +97,7 @@ const EditSchedule: FC = observer(() => {
     if (!admin.selectedDay) return
 
     admin.editingSchedule[admin.selectedDay].push(slot)
-    console.log("Слот создан")
+    Toast.show("Слот создан")
   }
 
   function deleteSlot(slotId: UUID) {
@@ -123,52 +116,63 @@ const EditSchedule: FC = observer(() => {
     }
   }
 
-  const atata: CSSProperties = {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  }
+
   return <AdaptivePopup
     visible={admin.editScheduleDayPopup.show}
     onClose={admin.editScheduleDayPopup.close}
   >
     <Card
       bodyClassName='pt-0'
+      style={{
+        maxHeight: '95vh'
+      }}
       title={admin.selectedDay && rusWeekDays[admin.selectedDay]}
     >
-      <List>
+      {!admin.editingSchedule?.[admin.selectedDay!]?.length
+        ? <NoticeBar
+          color='info'
+          shape='rounded'
+          icon={null}
+          content='Пусто'
+          className="mt-3"
+        />
+        : null
+      }
+      <Space wrap className="mt-2" justify='center'>
         {admin.editingSchedule && admin.selectedDay
           ? admin.editingSchedule[admin.selectedDay].map(slot => {
-            return <List.Item key={slot.id}>
-              <div style={atata}>
-                {slot.from + " - " + slot.to}
-                <div onClick={() => deleteSlot(slot.id)}>❌</div>
-              </div>
-            </List.Item>
+            return <Button
+              key={slot.id}
+              shape="rounded"
+              fill="outline"
+              onClick={() => {
+                Dialog.alert({
+                  closeOnMaskClick: true,
+                  content: 'Удалить окошко?',
+                  onConfirm() {
+                    deleteSlot(slot.id)
+                    Toast.show('Удалено')
+                  },
+                  confirmText: 'Удалить'
+                })
+              }}
+            >
+              {slot.hhmm}
+            </Button>
           })
           : null
         }
-        {!admin.editingSchedule![admin.selectedDay!]?.length
-          ? <NoticeBar
-            color='info'
-            shape='rounded'
-            icon={null}
-            content={'Пусто'}
-            className="mt-3 mb-3"
-          />
-          : null
-        }
+
         <Button
           color='primary'
           onClick={admin.addSlot.open}
           fill='outline'
-          className="w-100 mb-3"
           shape='rounded'
         >
           Добавить слот
         </Button>
-      </List>
+      </Space>
+
       <Space style={{ width: '100%' }} justify="end" className="mt-3">
         <Button shape='rounded' color='default' onClick={admin.editScheduleDayPopup.close}>
           Закрыть
@@ -181,59 +185,48 @@ const EditSchedule: FC = observer(() => {
     <AddSlot confirm={onAdd} />
   </AdaptivePopup>
 })
-var previousFromLength = 0
-var previousToLength = 0
+var previousHhmmLength = 0
 const AddSlot: FC<{ confirm: (slot: Slot) => void }> = observer(({ confirm }) => {
   const { admin } = useStore()
   const [form] = Form.useForm<Omit<Slot, 'id'>>()
   const fromRef = useRef<InputRef>(null)
   const toRef = useRef<InputRef>(null)
+  const [errored, setErrored] = useState(false)
 
   // ввод с маской
-  function inputFrom(str: string) {
+  function inputHhmm(str: string) {
     let value: string = str.replace(/[^\d:]/g, '')
     const parts = value.split(':')
     if (parts[0]) parts[0] = parts[0].slice(0, 2)
     if (parts[1]) parts[1] = parts[1].slice(0, 2)
-    if ((value.length === 2) && (value.length > previousFromLength)) {
-      previousFromLength = value.length
-      form.setFieldValue('from', `${parts.join(':')}:`)
+    if ((value.length === 2) && (value.length > previousHhmmLength)) {
+      previousHhmmLength = value.length
+      form.setFieldValue('hhmm', `${parts.join(':')}:`)
     } else {
-      previousFromLength = value.length
-      form.setFieldValue('from', parts.join(':'))
+      previousHhmmLength = value.length
+      form.setFieldValue('hhmm', parts.join(':'))
     }
-    if (str.length === 5) toRef.current?.focus()
-  }
 
-  function inputTo(str: string) {
-    let value: string = str.replace(/[^\d:]/g, '')
-    const parts = value.split(':')
-
-    if (parts[0]) parts[0] = parts[0].slice(0, 2)
-    if (parts[1]) parts[1] = parts[1].slice(0, 2)
-
-    if ((value.length === 2) && (value.length > previousToLength)) {
-      previousToLength = value.length
-      form.setFieldValue('to', `${parts.join(':')}:`)
-    } else {
-      previousToLength = value.length
-      form.setFieldValue('to', parts.join(':'))
+    if (str.length === 5) {
+      if (admin.editingSchedule?.[admin.selectedDay!].find(slot => slot.hhmm === value)) {
+        setErrored(true)
+      } else {
+        setErrored(false)
+      }
     }
   }
 
   function onClose() {
     admin.addSlot.close()
     form.resetFields()
-    previousFromLength = 0
-    previousToLength = 0
+    previousHhmmLength = 0
   }
 
 
   function onConfirm() {
     const slot: Slot = {
       id: v4(),
-      from: form.getFieldValue('from'),
-      to: form.getFieldValue('to')
+      hhmm: form.getFieldValue('hhmm')
     }
     confirm(slot)
     onClose()
@@ -249,59 +242,45 @@ const AddSlot: FC<{ confirm: (slot: Slot) => void }> = observer(({ confirm }) =>
       <Form
         form={form}
         layout='horizontal'
-        initialValues={{ from: '', to: '' }}
+        initialValues={{ hhmm: '' }}
         onFinish={onConfirm}
-        footer={
-          <Space style={{ width: '100%' }} justify='end'>
-            <Button color='default' onClick={onClose} shape='rounded'>
-              Закрыть
-            </Button>
-            <Button color='primary' onClick={onConfirm} shape='rounded'>
-              Создать
-            </Button>
-          </Space>
-        }
       >
         <Form.Item
-          name='from'
-          label='Начало'
+          name='hhmm'
+          label={errored
+            ? <span>
+              {'Время '}
+              <span style={{ color: 'var(--adm-color-danger)' }}>* Слот уже есть</span>
+            </span>
+            : 'Время'
+          }
+
           rules={[
             {
               required: true,
               message: 'Обязательное поле',
-              transform: inputFrom
+              transform: inputHhmm
             }
           ]}
         >
           <Input
             type="tel"
-            id="from"
+            id="hhmm"
             maxLength={5}
             placeholder="00:00"
             ref={fromRef}
             autoFocus
           />
         </Form.Item>
-        <Form.Item
-          name='to'
-          label='Завершение'
-          rules={[
-            {
-              required: true,
-              message: 'Обязательное поле',
-              transform: inputTo
-            }
-          ]}
-        >
-          <Input
-            type="tel"
-            id="to"
-            ref={toRef}
-            maxLength={5}
-            placeholder="00:00"
-          />
-        </Form.Item>
       </Form>
+      <Space style={{ width: '100%' }} justify='end'>
+        <Button color='default' onClick={onClose} shape='rounded'>
+          Закрыть
+        </Button>
+        <Button disabled={errored} color='primary' onClick={onConfirm} shape='rounded'>
+          Создать
+        </Button>
+      </Space>
     </Card>
   </AdaptivePopup>
 })

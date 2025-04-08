@@ -37,12 +37,11 @@ export const maxTime = (date: Date) =>
 
 
 export function formatDate(inputDate: string) {  
-  const date = moment(inputDate);  
-  const now = moment();  
+  const date = new Date(inputDate).getTime()
+  const now = new Date().getTime()
+  const diff = Math.ceil((date - now) / inMilliseconds.day)
 
-  const differenceInDays = date.diff(now, 'days');  
-
-  switch (differenceInDays) {  
+  switch (diff) {  
     case 1:  
       return "завтра";  
     case 2:  
@@ -52,6 +51,6 @@ export function formatDate(inputDate: string) {
     case -2:  
       return "позавчера";  
     default:  
-      return date.format("DD-MM-YYYY")
+      return moment(inputDate).format("DD-MM-YYYY")
   }  
 }  

@@ -5,13 +5,14 @@ import { NavBar } from "antd-mobile";
 import { Toasts } from "../components";
 import { WaitingMasters } from "../components/mainpage/WaitingMasters";
 import { Container } from "react-bootstrap";
+import { WaitingClients } from "../components/mainpage/WaitingClients";
 
 export const MainPage: FC = observer(() => {
   return <Wrapper>
     <Container className="pt-3">
-      <Toasts />
+      <Toasts className="mb-3" />
       <WaitingMasters />
-      {/* <WaitingClients /> */}
+      <WaitingClients />
     </Container>
   </Wrapper>
 })

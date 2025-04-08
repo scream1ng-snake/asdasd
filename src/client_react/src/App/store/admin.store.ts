@@ -2,7 +2,7 @@ import { Logger } from '../utils/logger'
 import { Request, http, Popup, type WeekDay } from '../utils';
 import type { ICreateSchedule, ISchedule, Schedule } from '../../../../entities/schedule.entity';
 import { RootStore } from './root.store';
-import { reaction } from 'mobx';
+import { makeAutoObservable, reaction } from 'mobx';
 
 
 export class AdminStore {
@@ -18,6 +18,7 @@ export class AdminStore {
   editingSchedule: Optional<ISchedule> = null
 
   constructor(readonly root: RootStore) {
+    makeAutoObservable(this, {}, { autoBind: true })
     reaction(
       () => this.root.auth.user,
       (state) => {
@@ -39,6 +40,7 @@ export class AdminStore {
       saturday: [],
     } 
     this.editingSchedule = schedule
+    this.saveSchedule()
   }
 
 

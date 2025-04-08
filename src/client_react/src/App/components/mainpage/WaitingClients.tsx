@@ -4,18 +4,18 @@ import { Container } from "react-bootstrap";
 import { useStore } from "../../hooks";
 import Booking from "../../../../../entities/booking.entity";
 import { List, NoticeBar } from "antd-mobile";
-import { BookForClient } from "../common/Book";
+import { BookForMaster } from "../common/Book";
 
 
-export const WaitingMasters: FC = observer(() => {
+export const WaitingClients: FC = observer(() => {
   const { auth: { user } } = useStore()
   if (!user) return null
 
-  if (user.role === 'master') return null
+  if (user.role === 'user') return null
 
   let plannedBookings: Booking[] = []
   let pastBookings: Booking[] = []
-  user.bookings.forEach(book => {
+  user.books.forEach(book => {
     Date.now() < new Date(book.date).getTime()
       ? plannedBookings.push(book)
       : pastBookings.push(book)
@@ -26,10 +26,10 @@ export const WaitingMasters: FC = observer(() => {
         color='info'
         shape='rounded'
         icon={null}
-        content={'Ожидающих записей нет'}
+        content={'Ожидающих клиентов нет'}
       />
       : <List style={{ borderRadius:20, overflow: 'hidden' }}>
-        {plannedBookings.map(pb => <BookForClient key={pb.id} record={pb} />)}
+        {plannedBookings.map(pb => <BookForMaster key={pb.id} record={pb} />)}
       </List>
     }
   </Container>

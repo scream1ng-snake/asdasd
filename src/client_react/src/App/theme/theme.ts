@@ -38,7 +38,7 @@ export const myCssVars = {
 
 /** кастомные переменные */
 export const myVariables = [
-  { cssVar: myCssVars['--accent-color'], dark: '#F7BB0F', light: '#F7BB0F' },
+  { cssVar: myCssVars['--accent-color'], dark: '#C516FF', light: '#C516FF' },
   { cssVar: myCssVars['--громкий-текст'], dark: '#FFFFFF', light: '#000000' }, 
   { cssVar: myCssVars['--тихий-текст'], dark: '#BABABA', light: '#836868' }, 
 ]
@@ -74,7 +74,7 @@ export const themeVars = {
 // меняем цвета в библиотеке
 export const antdVariables: Var[] = [
   { cssVar: antdCssVars['--adm-color-background'], dark: themeVars.tgBgColor, light: themeVars.tgBgColor }, 
-  // { cssVar: antdCssVars['--adm-color-primary'], dark: themeVars.myAccentColor, light: themeVars.myAccentColor }, 
+  { cssVar: antdCssVars['--adm-color-primary'], dark: themeVars.myAccentColor, light: themeVars.myAccentColor }, 
   { cssVar: antdCssVars['--adm-color-box'], dark: themeVars.tgSecondaryBgColor, light: themeVars.tgSecondaryBgColor }, 
   { cssVar: antdCssVars['--adm-font-family'], dark: 'Roboto, sans-serif', light: 'Roboto, sans-serif' }
 ]

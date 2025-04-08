@@ -5,7 +5,7 @@ import { User } from "./user.entity";
 export interface IRegisterSlot {
   masterId: UUID
   clientId: UUID
-  slotId: UUID
+  hhmm: string
   date: Date
 }
 @Entity()
@@ -17,7 +17,7 @@ class Booking {
   date!: Date
 
   @Column('text')
-  slotId!: UUID
+  hhmm!: string
 
   @ManyToOne(() => User, u => u.id)
   client!: User

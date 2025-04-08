@@ -42,6 +42,17 @@ export class SlotsStore {
     }
   })
 
+  getSlotById(id: UUID) {
+    let slot = null
+    Array.from(this.mastersAvailableSlots.values()).forEach(item => {
+      item.forEach(daySlots => {
+        const targetSlot = daySlots.slots.find(slot => slot.id === id)
+        if(targetSlot) slot = targetSlot
+      })
+    })
+    return slot as Optional<Slot>
+  }
+
   
   loadMasters = new Request(async (setState) => {
     setState('LOADING')
@@ -90,11 +101,13 @@ export class SlotsStore {
         masterId,
         clientId: client.id,
         slotId: slot.id,
+        hhmm: slot.hhmm,
         date
       })
       if(response) {
         this.root.auth.user?.bookings.push(response)
         this.confirmSlotPopup.close()
+        setState('COMPLETED')
         this.root.toasts.show('Успешно забронили окошко', 'success')
         this.loadMasters.run()
       }

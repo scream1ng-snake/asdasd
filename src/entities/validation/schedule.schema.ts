@@ -2,8 +2,7 @@ import { object, string, array, date } from 'yup';
 
 const Slot = object().shape({
   id: string().required(),
-  from: string().required(),
-  to: string().required(),
+  hhmm: string().required(),
 })
 
 const SlotArray = array().of(Slot)

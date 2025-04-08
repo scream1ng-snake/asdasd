@@ -5,8 +5,7 @@ import ScheduleChange from "./scheduleChanges,enitty"
 
 export interface Slot {
   id: UUID
-  from: string
-  to: string
+  hhmm: string
 }
 
 export interface ISchedule {

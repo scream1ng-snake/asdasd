@@ -22,17 +22,25 @@ export const BookingPage: FC = observer(() => {
   return <Wrapper>
     <Container className="pt-3">
       <Toasts className="mb-3" />
-      {slots.masters.map(master => {
-        const daySlots = slots.mastersAvailableSlots.get(master.id)
-        return <MasterSchedule
-          key={master.id}
-          daySlots={daySlots}
-          onChoose={(slot: Slot, date: string) => {
-            slots.confirmSlotPopup.watch({ slot, date, master })
-          }}
-          master={master}
-        />
-      })}
+      {
+        !slots.masters.length
+          ? <NoticeBar
+            color='info'
+            shape='rounded'
+            icon={null}
+            content={'Доступных мастеров нет'}
+          />
+          : slots.masters.map(master => {
+            const daySlots = slots.mastersAvailableSlots.get(master.id)
+            return <MasterSchedule
+              key={master.id}
+              daySlots={daySlots}
+              onChoose={(slot: Slot, date: string) => {
+                slots.confirmSlotPopup.watch({ slot, date, master })
+              }}
+              master={master}
+            />
+          })}
     </Container>
   </Wrapper>
 })
@@ -72,7 +80,7 @@ function MasterSchedule(props: Props) {
                 fill="outline"
                 onClick={() => onChoose(slot, daySlot.date)}
               >
-                {slot.from + ' - ' + slot.to}
+                {slot.hhmm}
               </Button>
             })}
           </Space>
@@ -82,7 +90,7 @@ function MasterSchedule(props: Props) {
         color='info'
         shape='rounded'
         icon={null}
-        content={'Мастер еще не создал расписание'}
+        content={'Пусто'}
       />
     }
   </Card>
@@ -128,14 +136,14 @@ const ConfirmBookingPopup: FC = observer(() => {
         <List.Item>
           <Between>
             <span>окошко:</span>
-            <span>{slot.from + ' - ' + slot.to}</span>
+            <span>{slot.hhmm}</span>
           </Between>
         </List.Item>
-        <Button 
-          loading={slots.bookingSlot.state === 'LOADING'} 
-          shape='rounded' 
-          className="w-100" 
-          color='primary' 
+        <Button
+          loading={slots.bookingSlot.state === 'LOADING'}
+          shape='rounded'
+          className="w-100"
+          color='primary'
           onClick={onConfirm}
         >
           Записаться
