@@ -47,4 +47,14 @@ export class User implements IUser {
   /** те же брони, но от лица мастера */
   @OneToMany(() => Booking, b => b.master)
   books!: Booking[]
+
+  getName() {
+    if(!this.firstName && !this.lastName) return 'Пользователь'
+    return (this.firstName
+      ? this.firstName
+      : '') + (this.lastName
+        ? ' ' + this.lastName
+        : ''
+      )
+  }
 }

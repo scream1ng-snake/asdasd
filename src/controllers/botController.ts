@@ -58,8 +58,6 @@ class botController {
     if(message.from?.id) {
       bot.sendMessage(message.chat.id, messages.about)
     }
-  }
-
-  
+  }  
 }
 export default new botController()

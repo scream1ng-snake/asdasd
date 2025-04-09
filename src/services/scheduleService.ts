@@ -37,6 +37,7 @@ class ScheduleService {
   }
 
   async getAvailableSlots(masterId: UUID, start = new Date(), daysCount = 14) {
+    // debugger
     // валидируем хозяйна
     const master = await usersService.getOne(masterId)
 
@@ -44,7 +45,7 @@ class ScheduleService {
       throw new HttpError(400, 'такого мастера нет')
     
     if (!master.schedule) 
-      throw new HttpError(400, `мастер ${master.firstName} ${master.lastName} еще не создал расписание`) 
+      throw new HttpError(400, `мастер ${master.getName()} еще не создал расписание`) 
     
     let result = []
     const days = range(daysCount)
@@ -56,9 +57,18 @@ class ScheduleService {
     ])
 
     for (const day of days) {
+      const now = new Date()
       const targetDate = new Date(start.getTime() + (day * inMilliseconds.day))
       const targetDay = weekDays[targetDate.getDay()]
-      const targetDaySlots = master.schedule![targetDay]
+      const isToday = moment(targetDate).isSame(moment(now), 'day')
+      const targetDaySlots = isToday
+        ? master.schedule![targetDay].filter(slot => {
+          const mm = now.getMinutes()
+          const hh = now.getHours()
+          const [slothh, slotmm] = slot.hhmm.split(":").map(Number)
+          return (hh * 60 + mm + inMilliseconds.hour) < (slothh * 60 + slotmm) 
+        })
+        : master.schedule![targetDay]
 
       const hasScheduleChange = changes.find(scheduleChange => {
         return moment(scheduleChange.date).isSame(moment(targetDate), 'day')
@@ -126,6 +136,7 @@ class ScheduleService {
 
 
   register = async (dto: IRegisterSlot) => {
+    debugger
     const [master, client] = await Promise.all([
       usersService.getOne(dto.masterId), 
       usersService.getOne(dto.clientId),
@@ -135,15 +146,15 @@ class ScheduleService {
       throw new HttpError(400, 'такого мастера нет')
     
     if (!master.schedule) 
-      throw new HttpError(400, `мастер ${master.firstName} ${master.lastName} еще не создал расписание`) 
+      throw new HttpError(400, `мастер ${master.getName()} еще не создал расписание`) 
 
     if (!client || client.role !== 'user')
       throw new HttpError(400, 'такого пользвоателя нет')
 
     // грузим сразу брони и изменения в расписании
     const [bookings, changes] = await Promise.all([
-      this.getBookings(master.id, new Date(dto.date), 1),
-      this.getChanges(master.schedule.id, new Date(dto.date), 1)
+      this.getBookings(master.id, new Date(dto.date), 0),
+      this.getChanges(master.schedule.id, new Date(dto.date), 0)
     ])
 
     const hasChanges = changes.find(change => 
@@ -186,15 +197,31 @@ class ScheduleService {
     if(master.telegram_id) 
       tgBot.bot.sendMessage(
         master.telegram_id,
-        `${client.firstName} ${client.lastName} забронировал(-а) окошко на ${formatDate(saved.date.toISOString())} в ${saved.hhmm}`
+        `${client.getName()} забронировал(-а) окошко на ${formatDate(saved.date.toISOString())} в ${saved.hhmm}`,
+        {  
+          reply_markup: {  
+            inline_keyboard: [  
+              [  
+                {  
+                    text: 'Подтвердить запись ✅',  
+                    callback_data: 'booking_confirm/' + booking.id, 
+                },
+                {  
+                    text: 'Удалить запись ❌',  
+                    callback_data: 'booking_delete/' + booking.id
+                }  
+              ]  
+            ]  
+          }  
+        }
       )
     if(client.telegram_id) 
       tgBot.bot.sendMessage(
         client.telegram_id, 
-        `Вы записались к ${master.firstName} ${master.lastName} на ${formatDate(saved.date.toISOString())} в ${saved.hhmm}`
+        `Вы записались к ${master.getName()} на ${formatDate(saved.date.toISOString())} в ${saved.hhmm}`
       )
 
-    this.logger.log(`${saved.client.firstName} забронировал слот ${slotExists.hhmm} у ${saved.master.firstName}`)
+    this.logger.log(`${saved.client.getName()} забронировал слот ${slotExists.hhmm} у ${saved.master.getName()}`)
     return saved
   }
 
@@ -237,6 +264,9 @@ class ScheduleService {
         targetBooking.client.telegram_id, 
         `Запись подтверждена ${formatDate(targetBooking.date.toISOString())} ${targetBooking.hhmm}`
       )
+    if(targetBooking.master.telegram_id)
+      tgBot.bot.sendMessage(targetBooking.master.telegram_id, 'Вы подтвердили')
+    this.logger.log('Запись подтверждена ' + saved.id)
     return saved
   }
 
@@ -258,6 +288,9 @@ class ScheduleService {
         `Запись отменена на ${formatDate(deleted.date.toISOString())} ${deleted.hhmm}`
       )
     }
+    if(targetBooking.master.telegram_id)
+      tgBot.bot.sendMessage(targetBooking.master.telegram_id, 'Вы удалили')
+    this.logger.log('Запись удалена ' + deleted.id)
     return deleted
   }
 }

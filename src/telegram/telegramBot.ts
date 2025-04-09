@@ -2,13 +2,11 @@ import TelegramBot from "node-telegram-bot-api"
 import { Logger } from "../utils/logger"
 import config from "../config"
 import botController from "../controllers/botController"
+import { botCommands } from "./types"
+import scheduleService from "../services/scheduleService"
+import usersService from "../services/usersService"
 
-export const botCommands = {
-  slashStart: '/start',
-  begin: 'начать',
-  link: 'связь'
-} as const
-export type botCommand = typeof botCommands[keyof typeof botCommands]
+
 
 export class BotApp {
   logger = new Logger('telegram bot')
@@ -34,6 +32,34 @@ export class BotApp {
         }
       }
     })
+    this.bot.on('callback_query', async query => {  
+      const chatId = query.message?.chat.id  
+
+      if(query.data && chatId) {
+        if(query.data && typeof query.data === 'string') {
+          const [command, entityId] = query.data.split("/")
+          const user = await usersService.getByTgId(chatId.toString())
+          switch (command) {
+            case 'booking_confirm':
+              if(user) {
+                await scheduleService.confirmBooking({ bookingId: entityId, masterId: user.id })
+                this.bot.answerCallbackQuery(query.id)
+              }
+              break;
+            case 'booking_delete':
+              if(user) {
+                await scheduleService.deleteBooking({ bookingId: entityId, masterId: user.id })
+                this.bot.answerCallbackQuery(query.id)
+              }
+              break;
+          }
+          this.bot.editMessageReplyMarkup({} as any, {  
+            chat_id: chatId,  
+            message_id: query.message!.message_id  
+          });  
+        }
+      }
+    });  
   }
 
   private botRoutes: Record<string, (msg: TelegramBot.Message, bot: TelegramBot) => Promise<any>> = {
